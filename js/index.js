@@ -15,6 +15,8 @@ var moveToList = [];
 
 var moveToCityhall = [];
 
+var filterWards = [];
+
 // マップサーバ一覧
 var mapServerList = {
 	'bing-road': {
@@ -129,6 +131,16 @@ $('#mainPage').on('pageshow', function() {
 		})
 	});
 
+	// 行政区セレクトボックスの生成
+	fw = new FilterWard();
+	fw.loadWardJson().then(function() {
+		fw.appendToFilterWard(filterWards);
+	}, function(){
+		fw.loadWardJson().then(function() {
+			fw.appendToFilterWard(filterWards);
+		})
+	});
+
 	// 保育施設クリック時の挙動を定義
 	map.on('click', function(evt) {
 		if ( $('#popup').is(':visible') ) {
@@ -224,6 +236,22 @@ $('#mainPage').on('pageshow', function() {
 		drawMarker(pos, label);
 	});
 
+	// 区役所中心座標変更セレクトボックス操作イベント定義
+	$('#filterWards').change(function(){
+		// $('#markerTitle').hide();
+		// $('#marker').hide();
+
+		// 指定した最寄り駅に移動
+		papamamap.moveToSelectItem(filterWards[$(this).val()]);
+
+		// 地図上にマーカーを設定する
+		var lon = filterWards[$(this).val()].lon;
+		var lat = filterWards[$(this).val()].lat;
+		var label = filterWards[$(this).val()].name;
+		var pos = ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
+		// Vienna marker
+		drawMarker(pos, label);
+	});
 
 	// 幼稚園チェックボックスのイベント設定
 	$('#cbKindergarten').click(function() {
